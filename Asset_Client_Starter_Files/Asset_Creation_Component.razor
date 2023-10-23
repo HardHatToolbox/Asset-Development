@@ -1,0 +1,109 @@
+@using MudBlazor;
+@using MudExtensions.Enums;
+@using HardHatCore.HardHatC2Client.Components.ImplantCreation;
+@inherits ImplantCreation_PluginContent;
+
+
+@* 
+<!-- This step displays all the final selected items before sending the request to build the implant -->
+<CommandSelectionStep ImpCommandForm="" ImpCommandList="@ImpCommandList" OrderCheckFunc="@OrderMethod"></CommandSelectionStep>
+
+<!-- This step supports selecting dynamic modules if required -->
+<ModuleSelectionStep ImpModuleForm="" ImpModuleList="@ImpModuleList" OrderCheckFunc="@OrderMethod"></ModuleSelectionStep> 
+*@
+<!-- This step displays build options based on the metadata provided in the Name_Creation_plugin.cs file -->
+<BuildOptionsStep buildStepForm="@_form2"></BuildOptionsStep>
+
+<!-- This step displays all the final selected items before sending the request to build the implant -->
+<FinalizeStep formData="formData"></FinalizeStep>
+
+<br>
+
+
+
+@code {
+
+    //create a form for each step you want to add beyond the first built in step, numbering should start at 2 since HardHatCore already has a step 1
+    public  MudForm _form2 { get; set; } = new MudForm();
+    //can be left as is this just helps to ensure the plugins step change check is used vs the built in one
+    private EventCallback<int> OnStepChangeCallback => EventCallback.Factory.Create<int>(this, HandleStepChange);
+
+    //makes sure we are using our version of the step change UI as needed 
+    private void HandleStepChange(int newIndex)
+    {
+        //check that we are beyond the first step & if so start using our version of the step change UI
+        if(Stepper.GetActiveIndex() == 1)
+        {
+            Stepper.PreventStepChangeAsync = CheckChange;
+        }
+    }
+
+    //should be overriden can use some of the same logic as the base but will need to set the proper step number and implement any implant specific checks on the step progression
+    public override async Task<bool> CheckChange(StepChangeDirection direction)
+    {
+        // Always allow stepping backwards, even if forms are invalid
+        if (direction == StepChangeDirection.Backward)
+        {
+            return false;
+        }
+        // the 0 index is for the first step in the implantCreation.razor file
+        // include 1 check for each step you have, in this case we only has the 2 steps, the build options and the final display step  
+        if (Stepper.GetActiveIndex() == 1)
+        {
+            _loading = true;
+            StateHasChanged();
+            await Task.Delay(100);
+            await _form2.Validate();
+            _loading = false;
+            StateHasChanged();
+            //any form that handles user submitted data should return like this so a validation can be done, if a custom validation is required then add the logic here and return true to block movement and false to allow step change 
+            return !_form2.IsValid;
+        }
+        else if (Stepper.GetActiveIndex() == 2)
+        {
+            _loading = true;
+            StateHasChanged();
+            await Task.Delay(100);
+            _loading = false;
+            StateHasChanged();
+            //just return false here because the last step just displays the filled info one last time and does not have a form to validate
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    
+    //should be overriden to set the implants implementations of the required funcs and to add the forms to the stepperForms list
+    protected override async Task OnInitializedAsync()
+    {
+        //cound here needs to equal the number of forms you want to add to the stepperForms list
+        if(stepperForms.Count() < 2)
+        {
+            //add our form to the base list of forms so it can be reset
+            stepperForms.Add(_form2);
+            //update the Stepper PreventStepChangeAsync function to be our overridden one
+            Stepper.ActiveStepChanged = OnStepChangeCallback;
+            //uncomment and create a fnction named validSubmit to handle the final submit of the implant creation if you need to do any custom logic
+            //ImplantCreation.ValidSubmitFunc = validSubmit;
+            
+            //if handling dynamic module and command choice uncomment the following lines and add the proper logic to the ImplantNameCommandValidation.cs file
+            /*var commandValid = PluginService.GetCommandValidationPlugin(ImplantName);
+            if (commandValid != null)
+            {
+                RequiredImpCommandList = commandValid.GetRequiredCommandList();
+                foreach(var item in RequiredImpCommandList)
+                {
+                    selectedImpCommandList.Add(item);
+                }
+                ImpCommandList = commandValid.GetOptionalCommandList();
+                CommandModulePairs = commandValid.GetModuleCommandPairs();
+                PostExCommandsThatSpawnNewImp = commandValid.GetPostExCommands();
+                ImpModuleList = commandValid.GetOptionalModules();
+            }
+            */
+        }
+    }
+}
