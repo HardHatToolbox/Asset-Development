@@ -12,6 +12,7 @@
 - Currently, HardHat supports plugins for Assets which are implants that can be written in any language. To get a working Asset, some client and server code is required. To help streamline this process a Python script has been provided to generate a set of C# projects that require very little modification. 
 - Note: The path to the plugin folder does not need to exist and should end with the name of the Asset; for example if I was creating the Rivet asset, it could be `C:\HardHat_Assets\Rivet\`
 1. Navigate to the plugin dev repo & execute `python3 .\AssetDevStart.py -HH PATH_TO_HARDHAT_FOLDER -PF PATH_TO_NEW_PLUGINFOLDER -PN AssetName `
+   	- ex. `python3 .\AssetDevStart.py -HH C:\HardHat\ -PF C:\HardHat_Assets\Rivet\ -PN Rivet`
 	- This will generate a few project folders & a solution file with all of the correct dependencies and references already created
 	- The `Name_Asset` is an empty folder where the source code of the Asset should go. This can be in any language so long as it can communicate with HardHat via JSON 
 	- the `Name_ClientPlugin` & `Name_ServerPlugin` folders are for the C# code to be used to add implementation details about your Asset to HardHatCore (Client + Server)
