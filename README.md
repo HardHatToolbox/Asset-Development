@@ -200,5 +200,8 @@ enum TaskResponseType
 #### Example? 
 - Check out the  [Rivet](https://github.com/HardHatToolbox/Rivet). project for an example of not only working & fully commented C# example code but also a working demo of an Asset written in Rust 
 
+## Publishing Your Asset 
+- The goal of HardHat is to provide a powerful, easy-to-use C2 framework, and hopefully, when you develop an Asset for HardHat, you aim to provide it to the community to learn and utilize together. 
+- In light of that, reach out to join the HardHat Toolbox org on GitHub by sending a request to Drago-QCC on Discord, the Bloodhound gang slack, or Twitter with your GitHub username.
 
 
